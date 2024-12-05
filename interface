@@ -1,0 +1,16 @@
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route("/")
+def homepage():
+    # Dados para exibição na página inicial
+    featured_products = [
+        {"id": 1, "name": "Camiseta Básica", "price": 19.99, "image": "camiseta.jpg"},
+        {"id": 2, "name": "Calça Jeans", "price": 49.99, "image": "calca.jpg"},
+        {"id": 3, "name": "Jaqueta de Couro", "price": 89.99, "image": "jaqueta.jpg"}
+    ]
+    return render_template("index.html", products=featured_products)
+
+if __name__ == "__main__":
+    app.run(debug=True)
