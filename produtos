@@ -1,0 +1,51 @@
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+
+app = Flask(__name__)
+
+# Carrinho de compras
+cart = []
+
+# Dados de exemplo dos produtos
+products = [
+    {"id": 1, "name": "Camiseta Básica", "price": 19.99},
+    {"id": 2, "name": "Calça Jeans", "price": 49.99},
+    {"id": 3, "name": "Jaqueta", "price": 89.99},
+]
+
+# Página inicial - lista de produtos
+@app.route("/")
+def home():
+    return render_template("index.html", products=products, cart=cart)
+
+# Adicionar produto ao carrinho
+@app.route("/add_to_cart", methods=["POST"])
+def add_to_cart():
+    product_id = int(request.form["product_id"])
+    product = next((p for p in products if p["id"] == product_id), None)
+
+    if product:
+        # Verifica se o produto já está no carrinho
+        existing_item = next((item for item in cart if item["id"] == product_id), None)
+        if existing_item:
+            existing_item["quantity"] += 1
+        else:
+            cart.append({"id": product["id"], "name": product["name"], "price": product["price"], "quantity": 1})
+
+    return redirect(url_for("home"))
+
+# Remover produto do carrinho
+@app.route("/remove_from_cart", methods=["POST"])
+def remove_from_cart():
+    product_id = int(request.form["product_id"])
+    global cart
+    cart = [item for item in cart if item["id"] != product_id]
+    return redirect(url_for("home"))
+
+# API para obter o carrinho (opcional)
+@app.route("/cart", methods=["GET"])
+def get_cart():
+    total = sum(item["price"] * item["quantity"] for item in cart)
+    return jsonify({"cart": cart, "total": total})
+
+if __name__ == "__main__":
+    app.run(debug=True)
